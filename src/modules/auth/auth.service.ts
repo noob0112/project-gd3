@@ -9,35 +9,28 @@ import { AuthRepository } from './auth.repository';
 import { AES, enc } from 'crypto-js';
 import { SignUpDto } from './dto/auth.dto';
 import { JwtService } from '@nestjs/jwt';
+import { MailService } from '../mail/mail.service';
+import { UsersRepository } from '../users/users.repository';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly authRepository: AuthRepository,
+    private readonly userRepository: UsersRepository,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {}
 
   //SIGNUP
-  public async signUp(newUser: SignUpDto): Promise<any> {
+  public async signUp(newUser: SignUpDto): Promise<boolean> {
     newUser.password = AES.encrypt(
       newUser.password,
-      process.env.PASS_SECRETS,
+      process.env.PASS_SECRET,
     ).toString();
 
-    // try {
-    return await this.authRepository
+    await this.userRepository
       .create(newUser)
-      .then((user) => {
-        return {
-          _id: user._id,
-          userName: user.userName,
-          fullName: user.fullName,
-          email: user.email,
-          address: user.address,
-        };
-      })
+      .then()
       .catch((error) => {
-        console.log(error);
         if (error.keyPattern)
           switch (Object.keys(error.keyPattern)[0]) {
             case 'userName':
@@ -51,61 +44,59 @@ export class AuthService {
           }
         throw new InternalServerErrorException('Internal_Server_Error');
       });
+
+    this.mailService.sendUserConfirmation(
+      {
+        email: 'hoang011220@gmail.com',
+        name: 'Hoang Nguyen',
+      },
+      'token',
+    );
+
+    return true;
   }
 
   //LOGIN
-  public async login(email: string, pass: string): Promise<any> {
-    try {
-      const userFind = await this.validateUser(email, pass);
-      if (!userFind) {
-        throw new HttpException(
-          'email or password is not correct!',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-      const payload = {
-        userId: userFind._id,
-        email: userFind.email,
-      };
+  public async login(userName: string, pass: string): Promise<any> {
+    const userFind = await this.userRepository.findOne({
+      userName: userName,
+    });
 
-      return {
-        accessToken: this.jwtService.sign(payload),
-        user: {
-          _id: userFind._id,
-          fullName: userFind.fullName,
-          email: userFind.email,
-          address: userFind.address,
-        },
-      };
-    } catch (error) {
-      console.log(error);
-      throw new HttpException(error.response, error.status);
-    }
-  }
-
-  public async validateUser(email: string, pass: string): Promise<any> {
-    try {
-      const userFind = await this.authRepository.findOne({
-        email: email,
-      });
-
-      if (!userFind) {
-        return false;
-      }
-      const hashedPassord = AES.decrypt(
-        userFind.password,
-        process.env.PASS_SECRET,
+    if (!userFind) {
+      throw new HttpException(
+        'email or password is not correct!',
+        HttpStatus.BAD_REQUEST,
       );
-
-      const originalPassword = hashedPassord.toString(enc.Utf8);
-
-      if (originalPassword !== pass) {
-        return false;
-      }
-
-      return userFind;
-    } catch (error) {
-      throw new HttpException(error.message, error.statusCode);
     }
+
+    const hashedPassord = AES.decrypt(
+      userFind.password,
+      process.env.PASS_SECRET,
+    );
+
+    const originalPassword = hashedPassord.toString(enc.Utf8);
+
+    if (originalPassword !== pass) {
+      throw new HttpException(
+        'email or password is not correct!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const payload = {
+      userId: userFind._id,
+      email: userFind.email,
+      userName: userFind.userName,
+    };
+
+    return {
+      accessToken: this.jwtService.sign(payload),
+      user: {
+        _id: userFind._id,
+        fullName: userFind.fullName,
+        email: userFind.email,
+        address: userFind.address,
+      },
+    };
   }
 }

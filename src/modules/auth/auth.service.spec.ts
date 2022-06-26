@@ -13,10 +13,6 @@ describe('AuthService', () => {
     create: jest.fn(),
   };
 
-  const mockAES = {
-    encrypt: jest.fn(),
-  };
-
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -42,12 +38,13 @@ describe('AuthService', () => {
 
   describe('create', () => {
     it('should return new user', async () => {
+      AES.encrypt = jest.fn().mockResolvedValue('secret');
+
       mockAuthRepository.create.mockResolvedValue(mockSignUpResponse);
 
-      mockAES.encrypt.mockResolvedValue('secret');
-
       const result = await service.signUp(mockSignUp);
-      expect(result).toEqual(mockSignUpResponse);
+
+      expect(result).toEqual(true);
     });
   });
 });
