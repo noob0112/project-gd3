@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
-import { AuthRepository } from './auth.repository';
 import { JwtService } from '@nestjs/jwt';
 import { getModelToken } from '@nestjs/mongoose';
 import { mockSignUp, mockSignUpResponse } from './auth.mock';
 import { AES } from 'crypto-js';
+import { UsersRepository } from '../users/users.repository';
 
 describe('AuthService', () => {
   let service: AuthService;
 
-  const mockAuthRepository = {
+  const mockUsersRepository = {
     create: jest.fn(),
   };
 
@@ -21,12 +21,12 @@ describe('AuthService', () => {
           useValue: {},
         },
         AuthService,
-        AuthRepository,
+        UsersRepository,
         JwtService,
       ],
     })
-      .overrideProvider(AuthRepository)
-      .useValue(mockAuthRepository)
+      .overrideProvider(UsersRepository)
+      .useValue(mockUsersRepository)
       .compile();
 
     service = module.get<AuthService>(AuthService);
@@ -40,7 +40,7 @@ describe('AuthService', () => {
     it('should return new user', async () => {
       AES.encrypt = jest.fn().mockResolvedValue('secret');
 
-      mockAuthRepository.create.mockResolvedValue(mockSignUpResponse);
+      mockUsersRepository.create.mockResolvedValue(mockSignUpResponse);
 
       const result = await service.signUp(mockSignUp);
 

@@ -5,7 +5,6 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { AuthRepository } from './auth.repository';
 import { AES, enc } from 'crypto-js';
 import { SignUpDto } from './dto/auth.dto';
 import { JwtService } from '@nestjs/jwt';
