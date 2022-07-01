@@ -1,36 +1,24 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { AuthController } from './auth.controller';
+import { mockSignUp, mockSignUpResponse } from './auth.mock';
 import { AuthService } from './auth.service';
-import { AuthRepository } from './auth.repository';
-import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './guards/jwt.strategy';
-import { RolesGuard } from './guards/roles.guard';
+
 describe('AuthController', () => {
   let controller: AuthController;
 
   const mockAuthService = {
     signUp: jest.fn(),
-  };
-
-  const mockAuthRepository = {
-    create: jest.fn(),
+    login: jest.fn(),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
-      providers: [
-        AuthService,
-        AuthRepository,
-        JwtModule,
-        JwtStrategy,
-        RolesGuard,
-      ],
+      providers: [AuthService],
     })
       .overrideProvider(AuthService)
       .useValue(mockAuthService)
-      .overrideProvider(AuthRepository)
-      .useValue(mockAuthRepository)
       .compile();
 
     controller = module.get<AuthController>(AuthController);
@@ -38,5 +26,25 @@ describe('AuthController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  describe('signUp', () => {
+    it('should create a new user and return true', async () => {
+      mockAuthService.signUp.mockResolvedValue(true);
+
+      const result = await controller.signUp(mockSignUp);
+
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('Login', () => {
+    it('[Expect-Success] should return true', async () => {
+      mockAuthService.login.mockResolvedValue(true);
+
+      const result = await controller.signUp(mockSignUp);
+
+      expect(result).toBe(true);
+    });
   });
 });

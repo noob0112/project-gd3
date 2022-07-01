@@ -1,28 +1,25 @@
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppModule } from './app.module';
+
+import { AppModule } from './app/app.module';
+import { NODE_ENV } from './app/constants';
+import { setupSwagger } from './util';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+  const PORT = +configService.get<number>('PORT');
 
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix(`api/${process.env.API_VERSION}`);
   app.enableCors({ credentials: true });
   app.useGlobalPipes(new ValidationPipe());
 
   // Open API
-  const config = new DocumentBuilder()
-    .setTitle('Order App')
-    .setDescription('The order API description')
-    .setVersion('1.0')
-    .addBearerAuth(
-      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT', in: 'header' },
-      'Authorization',
-    )
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  if (configService.get<string>('NODE_ENV') === NODE_ENV.DEVELOPMENT) {
+    setupSwagger(app);
+  }
 
-  await app.listen(3000);
+  await app.listen(PORT);
 }
 bootstrap();

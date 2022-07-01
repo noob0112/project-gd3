@@ -1,16 +1,30 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { getModelToken } from '@nestjs/mongoose';
-import { mockSignUp, mockSignUpResponse } from './auth.mock';
 import { AES } from 'crypto-js';
-import { UsersRepository } from '../users/users.repository';
+
+import { AuthService } from './auth.service';
+import { MailService } from '../mail/mail.service';
+import { UsersService } from '../users/users.service';
+import { mockSignUp, mockSignUpResponse } from './auth.mock';
+import { ILogin } from './entities';
+import { IUser } from '../users/interfaces';
+import { ROLE_ENUM, STATUS_ENUM } from '../users/users.constant';
 
 describe('AuthService', () => {
   let service: AuthService;
 
-  const mockUsersRepository = {
+  const mockUsersService = {
     create: jest.fn(),
+    findOneByUserName: jest.fn(),
+  };
+
+  const mockMailService = {
+    sendUserConfirmation: jest.fn(),
+  };
+
+  const mockJwtService = {
+    sign: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -21,12 +35,17 @@ describe('AuthService', () => {
           useValue: {},
         },
         AuthService,
-        UsersRepository,
+        MailService,
+        UsersService,
         JwtService,
       ],
     })
-      .overrideProvider(UsersRepository)
-      .useValue(mockUsersRepository)
+      .overrideProvider(UsersService)
+      .useValue(mockUsersService)
+      .overrideProvider(MailService)
+      .useValue(mockMailService)
+      .overrideProvider(JwtService)
+      .useValue(mockJwtService)
       .compile();
 
     service = module.get<AuthService>(AuthService);
@@ -37,14 +56,55 @@ describe('AuthService', () => {
   });
 
   describe('create', () => {
-    it('should return new user', async () => {
+    it('[Expect-Success] should return new user', async () => {
       AES.encrypt = jest.fn().mockResolvedValue('secret');
 
-      mockUsersRepository.create.mockResolvedValue(mockSignUpResponse);
+      mockUsersService.create.mockResolvedValue(mockSignUpResponse);
 
       const result = await service.signUp(mockSignUp);
 
       expect(result).toEqual(true);
+    });
+  });
+
+  describe('login', () => {
+    it('[Expect-Success] should return accessToken and information user', async () => {
+      const userName = 'test';
+      const pass = 'test';
+
+      const user: IUser = {
+        _id: '1',
+        userName: 'test',
+        fullName: 'test',
+        email: 'test',
+        phoneNumber: 'test',
+        password: 'test',
+        address: 'test',
+        role: ROLE_ENUM.USER,
+        status: STATUS_ENUM.PENDING,
+      };
+
+      const loginReturn: ILogin = {
+        accessToken: 'accessToken',
+        user: {
+          _id: '1',
+          fullName: 'test',
+          email: 'test',
+          address: 'test',
+        },
+      };
+
+      AES.decrypt = jest.fn().mockReturnValue('test');
+
+      AES.decrypt.toString = jest.fn().mockReturnValue('test');
+
+      mockUsersService.findOneByUserName.mockResolvedValue(user);
+
+      mockJwtService.sign.mockReturnValue('accessToken');
+
+      const result = await service.login(userName, pass);
+
+      expect(result).toEqual(loginReturn);
     });
   });
 });

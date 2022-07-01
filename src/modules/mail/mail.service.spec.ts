@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MailService } from './mail.service';
 import { MailerService } from '@nestjs-modules/mailer';
+import { IMailUser } from '../users/interfaces';
 
 describe('MailService', () => {
   let service: MailService;
@@ -26,7 +27,13 @@ describe('MailService', () => {
 
   describe('sendUserConfirmation', () => {
     it('should send email for user', async () => {
-      await service.sendUserConfirmation('test', 'token');
+      const user: IMailUser = {
+        email: 'test@email.com',
+        fullName: 'test',
+      };
+      const token = 'token';
+
+      await service.sendUserConfirmation(user, token);
 
       expect(mockMailerService.sendMail).toHaveBeenCalled();
     });

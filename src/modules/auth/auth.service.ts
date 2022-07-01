@@ -3,63 +3,54 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
-  InternalServerErrorException,
 } from '@nestjs/common';
 import { AES, enc } from 'crypto-js';
-import { SignUpDto } from './dto/auth.dto';
 import { JwtService } from '@nestjs/jwt';
+import { SignOptions } from 'jsonwebtoken';
+
 import { MailService } from '../mail/mail.service';
-import { UsersRepository } from '../users/users.repository';
+import { ILogin, ISignUp, ITokenPayload } from './entities';
+import { STATUS_ENUM } from '../users/users.constant';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userRepository: UsersRepository,
+    private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
   ) {}
 
   //SIGNUP
-  public async signUp(newUser: SignUpDto): Promise<boolean> {
+  public async signUp(newUser: ISignUp): Promise<boolean> {
     newUser.password = AES.encrypt(
       newUser.password,
       process.env.PASS_SECRET,
     ).toString();
 
-    await this.userRepository
-      .create(newUser)
-      .then()
-      .catch((error) => {
-        if (error.keyPattern)
-          switch (Object.keys(error.keyPattern)[0]) {
-            case 'userName':
-              throw new BadRequestException('userName is existed!');
+    const user = await this.usersService.create(newUser);
 
-            case 'email':
-              throw new BadRequestException('email is existed!');
-
-            case 'phoneNumber':
-              throw new BadRequestException('phoneNumber is existed!');
-          }
-        throw new InternalServerErrorException('Internal_Server_Error');
-      });
+    const payload: ITokenPayload = {
+      _id: user._id,
+      email: user.email,
+      status: user.status,
+      role: user.role,
+    };
 
     this.mailService.sendUserConfirmation(
       {
         email: 'hoang011220@gmail.com',
-        name: 'Hoang Nguyen',
+        fullName: 'Hoang Nguyen',
       },
-      'token',
+      this.generateToken(payload),
     );
 
     return true;
   }
 
   //LOGIN
-  public async login(userName: string, pass: string): Promise<any> {
-    const userFind = await this.userRepository.findOne({
-      userName: userName,
-    });
+  public async login(userName: string, pass: string): Promise<ILogin> {
+    const userFind = await this.usersService.findOneByUserName(userName);
 
     if (!userFind) {
       throw new HttpException(
@@ -82,14 +73,17 @@ export class AuthService {
       );
     }
 
-    const payload = {
-      userId: userFind._id,
+    const payload: ITokenPayload = {
+      _id: userFind._id,
       email: userFind.email,
-      userName: userFind.userName,
+      status: userFind.status,
+      role: userFind.role,
     };
 
+    const accessToken = this.generateToken(payload);
+
     return {
-      accessToken: this.jwtService.sign(payload),
+      accessToken,
       user: {
         _id: userFind._id,
         fullName: userFind.fullName,
@@ -97,5 +91,24 @@ export class AuthService {
         address: userFind.address,
       },
     };
+  }
+
+  async confirmEmail(token: string): Promise<boolean> {
+    try {
+      const user = this.jwtService.verify(token);
+      if (user.status === STATUS_ENUM.PENDING) {
+        await this.usersService.findByIdAndUpdateStatus(
+          user._id,
+          STATUS_ENUM.ACTION,
+        );
+      }
+      return true;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  private generateToken(data: ITokenPayload, options?: SignOptions): string {
+    return this.jwtService.sign(data, options);
   }
 }
