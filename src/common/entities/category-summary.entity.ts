@@ -1,4 +1,6 @@
+import { objectId } from '../types';
+
 export interface ICategorySummary {
-  categoryId: string;
+  categoryId: objectId | string;
   nameCategory: string;
 }

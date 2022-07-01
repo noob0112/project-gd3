@@ -11,7 +11,7 @@ export class ItemSummary {
   itemName: string;
 
   @Prop({ required: true })
-  avataImage: string;
+  avatarImage: string;
 
   @Prop({ required: true })
   price: number;
@@ -23,7 +23,7 @@ export class ItemSummary {
   quantity: number;
 
   @Prop({ required: true })
-  category: CategorySummary[];
+  category: CategorySummary;
 
   @Prop({ required: true })
   barCode: string;

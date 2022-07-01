@@ -7,5 +7,5 @@ export class CategorySummary {
   categoryId: objectId;
 
   @Prop({ required: true, unique: true })
-  name: string;
+  nameCategory: string;
 }

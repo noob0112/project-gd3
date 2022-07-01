@@ -1,11 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { TimestampsMongodb } from 'src/common/schemas';
 import { ItemSummary } from 'src/modules/items/schemas';
 
 export type FlashSaleDocument = FlashSale & Document;
 
 @Schema({ timestamps: true })
-export class FlashSale {
+export class FlashSale extends TimestampsMongodb {
   @Prop({ required: true })
   name: string;
 

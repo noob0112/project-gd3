@@ -1,14 +1,15 @@
+import { objectId } from '../types';
 import { ICategorySummary } from './category-summary.entity';
 import { IFlashSaleSummary } from './flash-sale-summary.entity';
 
 export interface IItemSummary {
-  itemId: string;
-  barcode: string;
+  itemId: objectId | string;
+  barCode: string;
   itemName: string;
   avatarImage: string;
   price: number;
   priceBeforeDiscount: number;
-  quatity: number;
+  quantity: number;
   category: ICategorySummary;
-  flashSale: IFlashSaleSummary;
+  // flashSale: IFlashSaleSummary;
 }

@@ -8,7 +8,7 @@ import { AES, enc } from 'crypto-js';
 import { JwtService } from '@nestjs/jwt';
 import { SignOptions } from 'jsonwebtoken';
 
-import { MailService } from '../mail/mail.service';
+import { MailService } from '../emails/emails.service';
 import { ILogin, ISignUp, ITokenPayload } from './entities';
 import { STATUS_ENUM } from '../users/users.constant';
 import { UsersService } from '../users/users.service';

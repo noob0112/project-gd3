@@ -8,11 +8,7 @@ import {
 import { objectId } from 'src/common/types';
 
 export abstract class EntityRepository<T> {
-  private _entityModel: Model<T>;
-
-  constructor(protected readonly entityModel: Model<T>) {
-    this._entityModel = entityModel;
-  }
+  constructor(protected readonly entityModel: Model<T>) {}
 
   findById(
     id: objectId | string,
