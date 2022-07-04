@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CategorysRepository } from './categories.repository';
-import { INewCategory } from './entities';
+import { INewCategory, IUpdateCategory } from './entities';
 import { ICategory } from './entities/category.entity';
 
 @Injectable()
@@ -9,5 +9,46 @@ export class CategoriesService {
 
   createCategory(newCategory: INewCategory): Promise<ICategory> {
     return this.categoriesRepository.create(newCategory);
+  }
+
+  findAllCategories(): Promise<ICategory[]> {
+    return this.categoriesRepository.find();
+  }
+
+  findCategoryById(id: string): Promise<ICategory> {
+    const category = this.categoriesRepository.findById(id);
+
+    if (!category) {
+      throw new NotFoundException('Category Id is incorrect or not exist!');
+    }
+
+    return category;
+  }
+
+  async findAndUpdateCategoryById(
+    id: string,
+    updateCategory: IUpdateCategory,
+  ): Promise<ICategory> {
+    const category = await this.categoriesRepository.findByIdAndUpdate(
+      id,
+      updateCategory,
+    );
+
+    if (!category) {
+      throw new NotFoundException('Category Id is incorrect or not exist!');
+    }
+    return category;
+  }
+
+  // findAndAddItem(id: string, itemSummary): Promise<ICategory> {
+  //   return this.categoriesRepository.findByIdAndUpdate()
+  // }
+
+  async findAndDeleteCategoryById(id: string): Promise<void> {
+    const category = await this.categoriesRepository.findByIdAndDelete(id);
+    if (!category) {
+      throw new NotFoundException('Category Id is incorrect or not exist!');
+    }
+    return;
   }
 }
