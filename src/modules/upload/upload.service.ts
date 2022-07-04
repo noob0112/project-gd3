@@ -13,7 +13,6 @@ export class UploadService {
   };
 
   async upload(file) {
-    console.log(file);
     const urlKey = `item-image/${Date.now()}-${file.originalname}`;
     return await this.uploadS3(file.buffer, urlKey);
   }
@@ -33,9 +32,11 @@ export class UploadService {
           reject(err.message);
         }
         console.log(data);
-        resolve({ key: data.Key, publicUrl: data.Location });
+        resolve({
+          key: data.Key,
+          publicUrl: `https://${process.env.AWS_CNAME}/${data.Bucket}/${data.Key}`,
+        });
       });
-      console.log(1);
     });
   }
 

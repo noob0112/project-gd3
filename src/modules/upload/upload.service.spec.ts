@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { S3 } from 'aws-sdk';
 import { UploadService } from './upload.service';
 
 describe('UploadService', () => {
@@ -15,4 +16,56 @@ describe('UploadService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
+
+  describe('upload', () => {
+    it('[Expect-Success] return key and publicUrl', async () => {
+      const file = {
+        fieldname: 'fieldname',
+        originalname: 'originalname',
+        encoding: 'encoding',
+        mimetype: 'mimetype',
+        buffer: 'buffer',
+        size: 3392,
+      };
+
+      const mockUploadS3 = {
+        key: 'key',
+        publicUrl: 'publicUrl',
+      };
+
+      service.uploadS3 = jest.fn().mockReturnValue(mockUploadS3);
+
+      const result = await service.upload(file);
+
+      expect(result).toEqual(mockUploadS3);
+    });
+  });
+
+  // describe('uploadS3', () => {
+  //   it('[Expect-Success] return key and publicUrl', async () => {
+  //     const file = {
+  //       fieldname: 'fieldname',
+  //       originalname: 'originalname',
+  //       encoding: 'encoding',
+  //       mimetype: 'mimetype',
+  //       buffer: 'buffer',
+  //       size: 3392,
+  //     };
+
+  //     const mockUploadS3 = {
+  //       key: 'key',
+  //       publicUrl: 'publicUrl',
+  //     };
+
+  //     service.getS3 = jest.fn();
+
+  //     service.getS3 = jest.fn().mockImplementation(() => {
+  //       return { upload: jest.fn().mockResolvedValue(mockUploadS3) };
+  //     });
+
+  //     const result = await service.uploadS3(file, file.originalname);
+
+  //     expect(result).toEqual(mockUploadS3);
+  //   });
+  // });
 });
