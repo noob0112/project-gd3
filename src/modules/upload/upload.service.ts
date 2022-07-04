@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { S3 } from 'aws-sdk';
+import { BUCKETPATH_ENUM } from './upload.constants';
 
 @Injectable()
 export class UploadService {
@@ -12,8 +13,10 @@ export class UploadService {
     AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
   };
 
-  async upload(file) {
-    const urlKey = `item-image/${Date.now()}-${file.originalname}`;
+  async upload(file: Express.Multer.File, bucketPath: BUCKETPATH_ENUM) {
+    let urlKey = `${bucketPath}/${Date.now()}-${file.originalname}`;
+    if (bucketPath === BUCKETPATH_ENUM['CATEGORY-IMAGE'])
+      urlKey = `${bucketPath}/banner/${Date.now()}-${file.originalname}`;
     return await this.uploadS3(file.buffer, urlKey);
   }
 

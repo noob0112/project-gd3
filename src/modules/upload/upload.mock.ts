@@ -1,11 +1,11 @@
-export const mockfile = {
+export const mockFile = {
   fieldname: 'fieldname',
   originalname: 'originalname',
   encoding: 'encoding',
   mimetype: 'mimetype',
-  buffer: 'buffer',
+  buffer: null,
   size: 3392,
-};
+} as Express.Multer.File;
 
 export const mockUploadS3 = {
   key: 'key',

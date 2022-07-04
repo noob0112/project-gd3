@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UploadController } from './upload.controller';
 import { UploadService } from './upload.service';
-import { mockUploadS3 } from './upload.mock';
+import { mockFile, mockUploadS3 } from './upload.mock';
+import { BUCKETPATH_ENUM } from './upload.constants';
 describe('UploadController', () => {
   let controller: UploadController;
 
@@ -29,9 +30,9 @@ describe('UploadController', () => {
     it('[Expect-Success] return key and publicUrl', async () => {
       mockUploadService.upload.mockResolvedValue(mockUploadS3);
 
-      let file: Express.Multer.File;
-
-      const result = await controller.upload(file);
+      const result = await controller.upload(mockFile, {
+        bucketPath: BUCKETPATH_ENUM['ITEM-IMAGE'],
+      });
 
       expect(result).toBe(mockUploadS3);
     });
