@@ -4,7 +4,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { AES } from 'crypto-js';
 
 import { AuthService } from './auth.service';
-import { MailService } from '../mail/mail.service';
+import { MailService } from '../emails/emails.service';
 import { UsersService } from '../users/users.service';
 import { mockSignUp, mockSignUpResponse } from './auth.mock';
 import { ILogin } from './entities';
