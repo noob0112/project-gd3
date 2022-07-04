@@ -13,7 +13,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix(`api/${process.env.API_VERSION}`);
   app.enableCors({ credentials: true });
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   // Open API
   if (configService.get<string>('NODE_ENV') === NODE_ENV.DEVELOPMENT) {
