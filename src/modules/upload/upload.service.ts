@@ -34,7 +34,6 @@ export class UploadService {
           this.logger.error(err);
           reject(err.message);
         }
-        console.log(data);
         resolve({
           key: data.Key,
           publicUrl: `https://${process.env.AWS_CNAME}/${data.Bucket}/${data.Key}`,
