@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { IItemSummary } from 'src/common/entities';
 import { CategorysRepository } from './categories.repository';
 import { INewCategory, IUpdateCategory } from './entities';
 import { ICategory } from './entities/category.entity';
@@ -32,6 +33,10 @@ export class CategoriesService {
     const category = await this.categoriesRepository.findByIdAndUpdate(
       id,
       updateCategory,
+      {
+        new: true,
+        fields: { listItems: 0 },
+      },
     );
 
     if (!category) {
@@ -40,9 +45,9 @@ export class CategoriesService {
     return category;
   }
 
-  // findAndAddItem(id: string, itemSummary): Promise<ICategory> {
-  //   return this.categoriesRepository.findByIdAndUpdate()
-  // }
+  findAndAddItem(id: string, itemSummary: IItemSummary): Promise<ICategory> {
+    return this.categoriesRepository.findByIdAndAddItem(id, itemSummary);
+  }
 
   async findAndDeleteCategoryById(id: string): Promise<void> {
     const category = await this.categoriesRepository.findByIdAndDelete(id);

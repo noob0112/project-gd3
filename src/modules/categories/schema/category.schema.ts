@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { TimestampsMongodb } from 'src/common/schemas';
+import { ItemSummarySchema, TimestampsMongodb } from 'src/common/schemas';
 
 import { ItemSummary } from 'src/common/schemas';
 import { STATUS_CATEGORY_ENUM } from '../categories.constant';
@@ -18,7 +18,7 @@ export class Category extends TimestampsMongodb {
   })
   status: STATUS_CATEGORY_ENUM;
 
-  @Prop({ default: [] })
+  @Prop({ default: [], type: [ItemSummarySchema] })
   listItems: ItemSummary[];
 
   @Prop({ required: true })

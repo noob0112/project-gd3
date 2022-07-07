@@ -13,4 +13,14 @@ export class CategorysRepository extends EntityRepository<CategoryDocument> {
   ) {
     super(categoryModel);
   }
+
+  async findByIdAndAddItem(id: string, itemSummary) {
+    return await this.categoryModel.findByIdAndUpdate(
+      id,
+      {
+        $push: { listItems: itemSummary },
+      },
+      { new: true },
+    );
+  }
 }
