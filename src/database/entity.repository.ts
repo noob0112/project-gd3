@@ -7,7 +7,7 @@ import {
 } from 'mongoose';
 import { objectId } from 'src/common/types';
 
-export abstract class EntityRepository<T> {
+export abstract class EntityRepository<T extends Document> {
   constructor(protected readonly entityModel: Model<T>) {}
 
   findById(
@@ -35,11 +35,16 @@ export abstract class EntityRepository<T> {
   find(
     entityFilterQuery?: FilterQuery<T>,
     projection?: Record<string, unknown>,
+    options?: QueryOptions<T> | null,
   ): Promise<T[] | null> {
     return this.entityModel
-      .find(entityFilterQuery, {
-        ...projection,
-      })
+      .find(
+        entityFilterQuery,
+        {
+          ...projection,
+        },
+        options,
+      )
       .exec();
   }
 
@@ -60,10 +65,9 @@ export abstract class EntityRepository<T> {
   async findByIdAndUpdate(
     id: objectId | string,
     updateEntitydata: UpdateQuery<unknown>,
+    options: QueryOptions<T> = { new: true },
   ): Promise<T | null> {
-    return this.entityModel.findByIdAndUpdate(id, updateEntitydata, {
-      new: true,
-    });
+    return this.entityModel.findByIdAndUpdate(id, updateEntitydata, options);
   }
 
   async findOneAndDelete(
