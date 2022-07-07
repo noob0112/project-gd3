@@ -1,27 +1,74 @@
-import { Injectable } from '@nestjs/common';
-import { NewItemDto } from './dtos';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
+import { CategoriesService } from '../categories/categories.service';
+
+import { IItem, INewItem, IQueryItem, IUpdateItem } from './entities';
 import { ItemsRepository } from './items.repository';
 
 @Injectable()
 export class ItemsService {
-  constructor(readonly itemsRepository: ItemsRepository) {}
+  constructor(
+    readonly itemsRepository: ItemsRepository,
+    readonly categoriesService: CategoriesService,
+  ) {}
 
-  createItem(item: NewItemDto) {
-    return this.itemsRepository.create(item);
+  async createItem(newItem: INewItem): Promise<IItem> {
+    const item = await this.itemsRepository.create(newItem).catch((error) => {
+      throw new BadRequestException(error.message);
+    });
+
+    const itemSummary = {
+      itemId: item._id,
+      barCode: item.barCode,
+      itemName: item.name,
+      avatarImage: item.avataImage,
+      price: item.price,
+      historicalSold: item.historicalSold,
+      stock: item.stock,
+      category: item.category,
+      flashSale: item.flashSale,
+    };
+    this.categoriesService.findAndAddItem(
+      String(item.category.categoryId),
+      itemSummary,
+    );
+    return item;
   }
 
-  public async findListItem() {
-    return await this.itemsRepository.find({}, { cost: 0, countOfSelling: 0 });
-  }
-
-  public async findItemById(itemId: string) {
-    return this.itemsRepository.findById(itemId, {
-      cost: 0,
-      countOfSelling: 0,
+  findAllItem(query: IQueryItem): Promise<IItem[]> {
+    return this.itemsRepository.findListItem(query).catch((error) => {
+      throw new InternalServerErrorException(error.message);
     });
   }
 
-  public async updateItemById(itemId: string, updateItem) {
-    return this.itemsRepository.findByIdAndUpdate(itemId, { $set: updateItem });
+  async findItemById(itemId: string): Promise<IItem> {
+    const item = await this.itemsRepository
+      .findItemById(itemId)
+      .catch((error) => {
+        throw new InternalServerErrorException(error.message);
+      });
+    if (!item) {
+      throw new BadRequestException('item is not exist!');
+    }
+    return item;
+  }
+
+  async findAndUpdateItemById(itemId: string, updateItem: IUpdateItem) {
+    const item = await this.itemsRepository
+      .findByIdAndUpdate(itemId, {
+        $set: updateItem,
+      })
+      .catch((error) => {
+        throw new InternalServerErrorException(error.message);
+      });
+
+    if (!item) {
+      throw new BadRequestException('item is not exist!');
+    }
+
+    return item;
   }
 }

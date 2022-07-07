@@ -1,33 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { objectId } from 'src/common/types';
-import * as mongoose from 'mongoose';
+import {
+  CategorySummary,
+  FlashSaleSummary,
+  TimestampsMongodb,
+} from 'src/common/schemas';
 
 export type ItemDocument = Item & Document;
 
-class Category {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Category' })
-  categoryId: objectId;
-  @Prop({ required: true })
-  nameCategory: string;
-}
-
-class FlashSale {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'FlashSale' })
-  flashSaleId: objectId;
-
-  @Prop({ required: true })
-  startTime: Date;
-
-  @Prop({ required: true })
-  endTime: Date;
-
-  @Prop({ required: true })
-  priceBeforeDiscount: number;
-}
-
 @Schema({ timestamps: true })
-export class Item {
+export class Item extends TimestampsMongodb {
   @Prop({ required: true })
   name: string;
 
@@ -53,7 +35,7 @@ export class Item {
   description: string;
 
   @Prop({ default: null })
-  flashSale?: FlashSale;
+  flashSale?: FlashSaleSummary;
 
   @Prop({ required: true })
   stock: number;
@@ -62,7 +44,7 @@ export class Item {
   historicalSold: number;
 
   @Prop({ required: true })
-  category: Category;
+  category: CategorySummary;
 
   @Prop({ default: 0 })
   countOfSelling: number;

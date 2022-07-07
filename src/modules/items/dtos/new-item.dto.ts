@@ -8,8 +8,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { CategorySummaryDto } from 'src/modules/categories/dtos';
-import { FlashSaleSummaryDto } from 'src/modules/flash-sales/dtos';
+import { CategorySummaryDto } from 'src/common/dtos';
 
 export class NewItemDto {
   @ApiProperty()
@@ -33,7 +32,7 @@ export class NewItemDto {
   price: number;
 
   @ApiProperty()
-  @IsOptional()
+  @IsNotEmpty()
   @IsNumber()
   weight: number;
 
@@ -45,12 +44,12 @@ export class NewItemDto {
   @ApiProperty()
   @IsOptional()
   @IsArray()
-  detailImage: string[];
+  detailImage?: string[];
 
   @ApiProperty()
   @IsOptional()
   @IsString()
-  description: string;
+  description?: string;
 
   @ApiProperty()
   @IsNotEmpty()
