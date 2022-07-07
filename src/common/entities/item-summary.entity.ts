@@ -4,12 +4,12 @@ import { IFlashSaleSummary } from './flash-sale-summary.entity';
 
 export interface IItemSummary {
   itemId: objectId | string;
-  barCode: string;
   itemName: string;
-  avatarImage: string;
+  barCode: string;
   price: number;
-  priceBeforeDiscount: number;
-  quantity: number;
+  avatarImage: string;
+  flashSale?: IFlashSaleSummary;
+  stock: number;
+  historicalSold: number;
   category: ICategorySummary;
-  // flashSale: IFlashSaleSummary;
 }

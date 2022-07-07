@@ -1,5 +1,7 @@
+import { objectId } from '../types';
+
 export interface IFlashSaleSummary {
-  flashSaleId: string;
+  flashSaleId: objectId | string;
   startTime: Date;
   endTime: Date;
   priceBeforeDiscount: number;

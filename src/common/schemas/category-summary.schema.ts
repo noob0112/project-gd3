@@ -6,6 +6,6 @@ export class CategorySummary {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Category' })
   categoryId: objectId;
 
-  @Prop({ required: true, unique: true })
-  nameCategory: string;
+  @Prop({ required: true })
+  categoryName: string;
 }
