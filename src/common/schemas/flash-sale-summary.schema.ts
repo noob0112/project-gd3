@@ -12,9 +12,6 @@ export class FlashSaleSummary {
 
   @Prop({ required: true })
   endTime: Date;
-
-  @Prop({ required: true })
-  priceBeforeDiscount: number;
 }
 
 export const FlashSaleSummarySchema =
