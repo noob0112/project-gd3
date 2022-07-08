@@ -4,6 +4,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { CategoriesService } from '../categories/categories.service';
+import { ICategoryItemSummary } from '../categories/entities';
 
 import { IItem, INewItem, IQueryItem, IUpdateItem } from './entities';
 import { ItemsRepository } from './items.repository';
@@ -20,21 +21,13 @@ export class ItemsService {
       throw new BadRequestException(error.message);
     });
 
-    const itemSummary = {
-      itemId: item._id,
-      barCode: item.barCode,
-      itemName: item.name,
-      avatarImage: item.avataImage,
-      price: item.price,
-      historicalSold: item.historicalSold,
-      stock: item.stock,
-      category: item.category,
-      flashSale: item.flashSale,
-    };
+    const itemSummary = this.getItemSummary(item);
+
     this.categoriesService.findAndAddItem(
       String(item.category.categoryId),
       itemSummary,
     );
+
     return item;
   }
 
@@ -70,5 +63,19 @@ export class ItemsService {
     }
 
     return item;
+  }
+
+  getItemSummary(item): ICategoryItemSummary {
+    return {
+      itemId: item._id,
+      barCode: item.barCode,
+      itemName: item.name,
+      avatarImage: item.avataImage,
+      price: item.price,
+      historicalSold: item.historicalSold,
+      priceBeforeDiscount: item.priceBeforeDiscount,
+      stock: item.stock,
+      flashSale: item.flashSale,
+    };
   }
 }

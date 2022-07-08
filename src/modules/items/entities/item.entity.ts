@@ -7,6 +7,7 @@ export interface IItem {
   barCode: string;
   cost: number;
   price: number;
+  priceBeforeDiscount?: number;
   weight: number;
   avataImage: string;
   detailImage: string[];

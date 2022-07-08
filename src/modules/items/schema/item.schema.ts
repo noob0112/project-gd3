@@ -2,7 +2,9 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import {
   CategorySummary,
+  CategorySummarySchema,
   FlashSaleSummary,
+  FlashSaleSummarySchema,
   TimestampsMongodb,
 } from 'src/common/schemas';
 
@@ -22,6 +24,9 @@ export class Item extends TimestampsMongodb {
   @Prop({ required: true })
   price: number;
 
+  @Prop({ default: null })
+  priceBeforeDiscount?: number;
+
   @Prop()
   weight: number;
 
@@ -34,7 +39,7 @@ export class Item extends TimestampsMongodb {
   @Prop()
   description: string;
 
-  @Prop({ default: null })
+  @Prop({ default: null, type: FlashSaleSummarySchema })
   flashSale?: FlashSaleSummary;
 
   @Prop({ required: true })
@@ -43,7 +48,7 @@ export class Item extends TimestampsMongodb {
   @Prop({ default: 0 })
   historicalSold: number;
 
-  @Prop({ required: true })
+  @Prop({ required: true, type: CategorySummarySchema })
   category: CategorySummary;
 
   @Prop({ default: 0 })
