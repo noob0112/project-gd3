@@ -1,7 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { IItemSummary } from 'src/common/entities';
 import { CategorysRepository } from './categories.repository';
-import { INewCategory, IUpdateCategory } from './entities';
+import {
+  ICategoryItemSummary,
+  INewCategory,
+  IUpdateCategory,
+} from './entities';
 import { ICategory } from './entities/category.entity';
 
 @Injectable()
@@ -45,7 +48,10 @@ export class CategoriesService {
     return category;
   }
 
-  findAndAddItem(id: string, itemSummary: IItemSummary): Promise<ICategory> {
+  findAndAddItem(
+    id: string,
+    itemSummary: ICategoryItemSummary,
+  ): Promise<ICategory> {
     return this.categoriesRepository.findByIdAndAddItem(id, itemSummary);
   }
 
