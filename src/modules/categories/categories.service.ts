@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CategorysRepository } from './categories.repository';
 import {
   ICategoryItemSummary,
@@ -12,15 +17,35 @@ export class CategoriesService {
   constructor(readonly categoriesRepository: CategorysRepository) {}
 
   createCategory(newCategory: INewCategory): Promise<ICategory> {
-    return this.categoriesRepository.create(newCategory);
+    return this.categoriesRepository.create(newCategory).catch((error) => {
+      if (Object.keys(error.keyPattern)[0] === 'name')
+        throw new BadRequestException('Category name is existed!');
+      throw new BadRequestException(error.message);
+    });
   }
 
   findAllCategories(): Promise<ICategory[]> {
-    return this.categoriesRepository.find();
+    return this.categoriesRepository
+      .find(
+        {},
+        { listItems: 0 },
+        {
+          sort: {
+            field: 1,
+          },
+        },
+      )
+      .catch((error) => {
+        throw new InternalServerErrorException(error.message);
+      });
   }
 
-  findCategoryById(id: string): Promise<ICategory> {
-    const category = this.categoriesRepository.findById(id);
+  async findCategoryById(id: string): Promise<ICategory> {
+    const category = await this.categoriesRepository
+      .findById(id)
+      .catch((error) => {
+        throw new InternalServerErrorException(error.message);
+      });
 
     if (!category) {
       throw new NotFoundException('Category Id is incorrect or not exist!');
@@ -56,7 +81,12 @@ export class CategoriesService {
   }
 
   async findAndDeleteCategoryById(id: string): Promise<void> {
-    const category = await this.categoriesRepository.findByIdAndDelete(id);
+    const category = await this.categoriesRepository
+      .findByIdAndDelete(id)
+      .catch((error) => {
+        throw new InternalServerErrorException(error.message);
+      });
+
     if (!category) {
       throw new NotFoundException('Category Id is incorrect or not exist!');
     }

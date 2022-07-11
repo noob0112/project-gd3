@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -9,7 +8,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { ObjectIdDto } from 'src/common/dtos';
+import { ObjectIdDto } from '../../common/dtos';
 import { CategoriesService } from './categories.service';
 import { NewCategoryDto, StatusCategoryDto, UpdateCategoryDto } from './dtos';
 import { ICategory } from './entities';
@@ -22,11 +21,7 @@ export class CategoriesController {
   // CREATE CATEGORY
   @Post()
   createCategory(@Body() newCategory: NewCategoryDto): Promise<ICategory> {
-    return this.categoriesService.createCategory(newCategory).catch((error) => {
-      if (Object.keys(error.keyPattern)[0] === 'name')
-        throw new BadRequestException('Category name is existed!');
-      throw new BadRequestException(error.message);
-    });
+    return this.categoriesService.createCategory(newCategory);
   }
 
   // FIND ALL CATEGORY
