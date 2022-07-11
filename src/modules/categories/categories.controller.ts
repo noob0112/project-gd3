@@ -40,9 +40,12 @@ export class CategoriesController {
   @Put(':id')
   updateCategoryById(
     @Param() param: ObjectIdDto,
-    @Body() status: UpdateCategoryDto,
+    @Body() updateCategory: UpdateCategoryDto,
   ): Promise<ICategory> {
-    return this.categoriesService.findAndUpdateCategoryById(param.id, status);
+    return this.categoriesService.findAndUpdateCategoryById(
+      param.id,
+      updateCategory,
+    );
   }
 
   // UPDATE STATUS CATEGORY

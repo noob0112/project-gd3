@@ -25,16 +25,14 @@ export class CategoriesService {
   }
 
   findAllCategories(): Promise<ICategory[]> {
+    const select = { listItems: 0 };
+    const options = {
+      sort: {
+        field: 1,
+      },
+    };
     return this.categoriesRepository
-      .find(
-        {},
-        { listItems: 0 },
-        {
-          sort: {
-            field: 1,
-          },
-        },
-      )
+      .find({}, select, options)
       .catch((error) => {
         throw new InternalServerErrorException(error.message);
       });

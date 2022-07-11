@@ -11,4 +11,9 @@ export class UpdateCategoryDto {
   @IsOptional()
   @IsString()
   banner?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  field?: number;
 }
